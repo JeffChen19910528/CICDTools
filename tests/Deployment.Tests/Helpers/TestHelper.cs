@@ -27,7 +27,8 @@ public static class TestHelper
         IAuditService Audit,
         IFileSystem Fs,
         IChecksumService Checksum,
-        ILockService Lock) CreateServices(DeploymentDbContext db, string tempDir)
+        ILockService Lock,
+        ITargetResolver Resolver) CreateServices(DeploymentDbContext db, string tempDir)
     {
         var appRepo = new ApplicationRepository(db);
         var releaseRepo = new ReleaseRepository(db);
@@ -37,7 +38,8 @@ public static class TestHelper
         var fs = new LocalFileSystem();
         var checksum = new Sha256ChecksumService();
         var lockSvc = new FileLockService(Path.Combine(tempDir, "locks"));
-        return (appRepo, releaseRepo, deploymentRepo, backupRepo, audit, fs, checksum, lockSvc);
+        var resolver = new TargetResolver(appRepo);
+        return (appRepo, releaseRepo, deploymentRepo, backupRepo, audit, fs, checksum, lockSvc, resolver);
     }
 
     public static async Task<Domain.Entities.Application> CreateAppAsync(

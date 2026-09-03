@@ -87,9 +87,10 @@ public class RetentionServiceTests : IDisposable
          Deployment.Application.Interfaces.IAuditService Audit,
          Deployment.Application.Interfaces.IFileSystem Fs,
          Deployment.Application.Interfaces.IChecksumService Checksum,
-         Deployment.Application.Interfaces.ILockService Lock) svcs)
+         Deployment.Application.Interfaces.ILockService Lock,
+         Deployment.Application.Interfaces.ITargetResolver Resolver) svcs)
     {
-        return new RetentionService(svcs.AppRepo, svcs.BackupRepo, svcs.Fs, svcs.Audit,
+        return new RetentionService(svcs.Resolver, svcs.AppRepo, svcs.BackupRepo, svcs.Fs, svcs.Audit,
             NullLogger<RetentionService>.Instance);
     }
 
@@ -102,9 +103,10 @@ public class RetentionServiceTests : IDisposable
          Deployment.Application.Interfaces.IAuditService Audit,
          Deployment.Application.Interfaces.IFileSystem Fs,
          Deployment.Application.Interfaces.IChecksumService Checksum,
-         Deployment.Application.Interfaces.ILockService Lock) svcs)
+         Deployment.Application.Interfaces.ILockService Lock,
+         Deployment.Application.Interfaces.ITargetResolver Resolver) svcs)
     {
-        return new BackupService(svcs.AppRepo, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
+        return new BackupService(svcs.Resolver, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
             svcs.Audit, NullLogger<BackupService>.Instance);
     }
 }

@@ -4,6 +4,11 @@ using Deployment.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+if (OperatingSystem.IsWindows())
+{
+    try { Console.OutputEncoding = System.Text.Encoding.UTF8; } catch { /* redirected output stream */ }
+}
+
 var dataDir = Environment.GetEnvironmentVariable("DEPLOYCTL_DATA")
     ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "deployctl");
 

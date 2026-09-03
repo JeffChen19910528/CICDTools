@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Deployment.Application.Services;
 
-public class DiffService(IFileSystem fs, IChecksumService checksum, ILogger<DiffService> logger)
+public class DiffService(IFileSystem fs, IChecksumService checksum, ILogger<DiffService> logger) : IDiffService
 {
     private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
     {

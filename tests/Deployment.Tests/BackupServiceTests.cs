@@ -92,7 +92,7 @@ public class BackupServiceTests : IDisposable
     {
         var svcs = TestHelper.CreateServices(db, _tempDir);
         var service = new BackupService(
-            svcs.AppRepo, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
+            svcs.Resolver, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
             svcs.Audit, NullLogger<BackupService>.Instance);
         return (service, svcs.AppRepo);
     }

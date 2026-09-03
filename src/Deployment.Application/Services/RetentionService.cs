@@ -5,11 +5,12 @@ using Microsoft.Extensions.Logging;
 namespace Deployment.Application.Services;
 
 public class RetentionService(
+    ITargetResolver resolver,
     IApplicationRepository appRepo,
     IBackupRepository backupRepo,
     IFileSystem fs,
     IAuditService audit,
-    ILogger<RetentionService> logger)
+    ILogger<RetentionService> logger) : IRetentionService
 {
     public async Task ApplyRetentionAsync(
         string applicationName,
@@ -18,12 +19,7 @@ public class RetentionService(
         string @operator,
         CancellationToken ct = default)
     {
-        var app = await appRepo.GetByNameAsync(applicationName, ct)
-            ?? throw new InvalidOperationException($"Application '{applicationName}' not found.");
-        var env = await appRepo.GetEnvironmentAsync(app.Id, environmentName, ct)
-            ?? throw new InvalidOperationException($"Environment '{environmentName}' not found.");
-        var target = await appRepo.GetTargetAsync(env.Id, targetName, ct)
-            ?? throw new InvalidOperationException($"Target '{targetName}' not found.");
+        var (_, env, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
         var policy = await appRepo.GetRetentionPolicyAsync(env.Id, ct);
 
         if (policy == null)

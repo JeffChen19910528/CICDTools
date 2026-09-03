@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Deployment.Application.Interfaces;
 using Deployment.Application.Services;
 using Deployment.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ public static class BackupCommands
 
         cmd.SetHandler(async (app, env, target, op) =>
         {
-            var svc = services.GetRequiredService<BackupService>();
+            var svc = services.GetRequiredService<IBackupService>();
             var opts = services.GetRequiredService<DeploymentOptions>();
 
             await AnsiConsole.Status().StartAsync("Creating backup...", async ctx =>
@@ -60,7 +61,7 @@ public static class BackupCommands
 
         cmd.SetHandler(async (app, env, target) =>
         {
-            var svc = services.GetRequiredService<BackupService>();
+            var svc = services.GetRequiredService<IBackupService>();
             var backups = await svc.ListBackupsAsync(app, env, target);
 
             if (!backups.Any()) { AnsiConsole.MarkupLine("[grey]No backups found.[/]"); return; }
@@ -88,7 +89,7 @@ public static class BackupCommands
                     b.ReleaseVersion ?? "-",
                     b.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
                     b.FileCount?.ToString() ?? "-",
-                    b.TotalBytes.HasValue ? FormatBytes(b.TotalBytes.Value) : "-",
+                    b.TotalBytes.HasValue ? ByteFormatter.Format(b.TotalBytes.Value) : "-",
                     $"[{statusColor}]{b.Status}[/]",
                     b.IsProtected ? "[yellow]PROTECTED[/]" : "");
             }
@@ -110,7 +111,7 @@ public static class BackupCommands
 
         cmd.SetHandler(async (app, env, target, op) =>
         {
-            var svc = services.GetRequiredService<RetentionService>();
+            var svc = services.GetRequiredService<IRetentionService>();
             await AnsiConsole.Status().StartAsync("Applying retention policy...", async ctx =>
             {
                 try
@@ -136,7 +137,7 @@ public static class BackupCommands
 
         cmd.SetHandler(async (backupId, protect) =>
         {
-            var svc = services.GetRequiredService<BackupService>();
+            var svc = services.GetRequiredService<IBackupService>();
             await svc.ProtectBackupAsync(backupId, protect);
             AnsiConsole.MarkupLine(protect
                 ? $"[green]Backup {backupId} is now PROTECTED.[/]"
@@ -145,13 +146,4 @@ public static class BackupCommands
 
         return cmd;
     }
-
-    private static string FormatBytes(long bytes) =>
-        bytes switch
-        {
-            < 1024 => $"{bytes} B",
-            < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
-            < 1024 * 1024 * 1024 => $"{bytes / 1024.0 / 1024:F1} MB",
-            _ => $"{bytes / 1024.0 / 1024 / 1024:F2} GB"
-        };
 }

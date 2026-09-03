@@ -4,8 +4,6 @@ namespace Deployment.Infrastructure.Services;
 
 public class LocalFileSystem : IFileSystem
 {
-    private static readonly byte[] BinarySniffBytes = new byte[8192];
-
     public bool DirectoryExists(string path) => Directory.Exists(path);
     public bool FileExists(string path) => File.Exists(path);
     public void CreateDirectory(string path) => Directory.CreateDirectory(path);
@@ -16,6 +14,22 @@ public class LocalFileSystem : IFileSystem
     public void CopyFile(string source, string destination, bool overwrite) => File.Copy(source, destination, overwrite);
 
     public void MoveDirectory(string source, string destination) => Directory.Move(source, destination);
+
+    public void CopyDirectory(string sourceDirectory, string destinationDirectory, bool overwrite = true, CancellationToken ct = default)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        if (!Directory.Exists(destinationDirectory)) Directory.CreateDirectory(destinationDirectory);
+
+        foreach (var srcFile in EnumerateFiles(sourceDirectory))
+        {
+            ct.ThrowIfCancellationRequested();
+            var relativePath = GetRelativePath(sourceDirectory, srcFile);
+            var destFile = CombinePath(destinationDirectory, relativePath);
+            var destDir = Path.GetDirectoryName(destFile)!;
+            if (!Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+            CopyFile(srcFile, destFile, overwrite);
+        }
+    }
 
     public IEnumerable<string> EnumerateFiles(string path, bool recursive = true)
         => Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -35,10 +49,11 @@ public class LocalFileSystem : IFileSystem
         if (!File.Exists(path)) return false;
         try
         {
+            Span<byte> buffer = stackalloc byte[8192];
             using var stream = File.OpenRead(path);
-            int read = stream.Read(BinarySniffBytes, 0, BinarySniffBytes.Length);
+            int read = stream.Read(buffer);
             for (int i = 0; i < read; i++)
-                if (BinarySniffBytes[i] == 0) return true;
+                if (buffer[i] == 0) return true;
             return false;
         }
         catch

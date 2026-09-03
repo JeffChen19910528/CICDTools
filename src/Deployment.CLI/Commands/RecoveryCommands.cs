@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Deployment.Application.Interfaces;
 using Deployment.Application.Services;
 using Deployment.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public static class RecoveryCommands
 
         cmd.SetHandler(async () =>
         {
-            var svc = services.GetRequiredService<DeploymentService>();
+            var svc = services.GetRequiredService<IDeploymentService>();
             var incomplete = await svc.GetIncompleteDeploymentsAsync();
 
             if (!incomplete.Any())

@@ -179,13 +179,13 @@ public class DeploymentServiceTests : IDisposable
             ReleasesStorePath = Path.Combine(_tempDir, "releases"),
             DataPath = _tempDir
         };
-        var backupSvc = new BackupService(svcs.AppRepo, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
+        var backupSvc = new BackupService(svcs.Resolver, svcs.BackupRepo, svcs.Fs, svcs.Checksum,
             svcs.Audit, NullLogger<BackupService>.Instance);
         var diffSvc = new DiffService(svcs.Fs, svcs.Checksum, NullLogger<DiffService>.Instance);
-        var releaseSvc = new ReleaseService(svcs.AppRepo, svcs.ReleaseRepo, svcs.Fs, svcs.Checksum,
+        var releaseSvc = new ReleaseService(svcs.Resolver, svcs.ReleaseRepo, svcs.Fs, svcs.Checksum,
             svcs.Audit, NullLogger<ReleaseService>.Instance);
         var deploySvc = new DeploymentService(
-            svcs.AppRepo, svcs.ReleaseRepo, svcs.DeploymentRepo,
+            svcs.Resolver, svcs.AppRepo, svcs.ReleaseRepo, svcs.DeploymentRepo,
             svcs.Fs, svcs.Checksum, svcs.Lock,
             backupSvc, diffSvc, svcs.Audit,
             NullLogger<DeploymentService>.Instance, opts);

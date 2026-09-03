@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Deployment.Application.Interfaces;
 using Deployment.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -33,7 +34,7 @@ public static class ReleaseCommands
 
         cmd.SetHandler(async (app, version, source, op, commit, build, notes) =>
         {
-            var svc = services.GetRequiredService<ReleaseService>();
+            var svc = services.GetRequiredService<IReleaseService>();
             var opts = services.GetRequiredService<DeploymentOptions>();
 
             await AnsiConsole.Status().StartAsync($"Creating release {app}-{version}...", async ctx =>
@@ -60,7 +61,7 @@ public static class ReleaseCommands
 
         cmd.SetHandler(async (app) =>
         {
-            var svc = services.GetRequiredService<ReleaseService>();
+            var svc = services.GetRequiredService<IReleaseService>();
             var releases = await svc.ListReleasesAsync(app);
 
             if (!releases.Any()) { AnsiConsole.MarkupLine("[grey]No releases found.[/]"); return; }
@@ -97,7 +98,7 @@ public static class ReleaseCommands
 
         cmd.SetHandler(async (releaseId) =>
         {
-            var svc = services.GetRequiredService<ReleaseService>();
+            var svc = services.GetRequiredService<IReleaseService>();
             try
             {
                 var r = await svc.GetReleaseAsync(releaseId);
@@ -111,7 +112,7 @@ public static class ReleaseCommands
 
                 var table = new Table().AddColumn("Path").AddColumn("Size").AddColumn("SHA-256");
                 foreach (var f in r.Files.OrderBy(f => f.RelativePath))
-                    table.AddRow(Markup.Escape(f.RelativePath), FormatBytes(f.Size), f.Sha256[..16] + "…");
+                    table.AddRow(Markup.Escape(f.RelativePath), ByteFormatter.Format(f.Size), f.Sha256[..16] + "…");
                 AnsiConsole.Write(table);
             }
             catch (Exception ex)
@@ -122,13 +123,4 @@ public static class ReleaseCommands
 
         return cmd;
     }
-
-    private static string FormatBytes(long bytes) =>
-        bytes switch
-        {
-            < 1024 => $"{bytes} B",
-            < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
-            < 1024 * 1024 * 1024 => $"{bytes / 1024.0 / 1024:F1} MB",
-            _ => $"{bytes / 1024.0 / 1024 / 1024:F2} GB"
-        };
 }

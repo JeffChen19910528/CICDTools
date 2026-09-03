@@ -39,3 +39,8 @@ Thumbs.db
 locks/
 backups/
 releases/
+
+## Claude Code development files (not committed to GitHub) ##
+CLAUDE.md
+skill.md
+.claude_recovery/

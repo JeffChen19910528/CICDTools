@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 namespace Deployment.Application.Services;
 
 public class ReleaseService(
-    IApplicationRepository appRepo,
+    ITargetResolver resolver,
     IReleaseRepository releaseRepo,
     IFileSystem fs,
     IChecksumService checksum,
     IAuditService audit,
-    ILogger<ReleaseService> logger)
+    ILogger<ReleaseService> logger) : IReleaseService
 {
     public async Task<Release> CreateReleaseAsync(
         string applicationName,
@@ -23,8 +23,7 @@ public class ReleaseService(
         string? notes = null,
         CancellationToken ct = default)
     {
-        var app = await appRepo.GetByNameAsync(applicationName, ct)
-            ?? throw new InvalidOperationException($"Application '{applicationName}' not found.");
+        var app = await resolver.ResolveApplicationAsync(applicationName, ct);
 
         var existing = await releaseRepo.GetByVersionAsync(app.Id, version, ct);
         if (existing != null)
@@ -95,8 +94,7 @@ public class ReleaseService(
 
     public async Task<IReadOnlyList<Release>> ListReleasesAsync(string applicationName, CancellationToken ct = default)
     {
-        var app = await appRepo.GetByNameAsync(applicationName, ct)
-            ?? throw new InvalidOperationException($"Application '{applicationName}' not found.");
+        var app = await resolver.ResolveApplicationAsync(applicationName, ct);
         return await releaseRepo.ListAsync(app.Id, ct);
     }
 

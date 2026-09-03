@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 namespace Deployment.Application.Services;
 
 public class BackupService(
-    IApplicationRepository appRepo,
+    ITargetResolver resolver,
     IBackupRepository backupRepo,
     IFileSystem fs,
     IChecksumService checksum,
     IAuditService audit,
-    ILogger<BackupService> logger)
+    ILogger<BackupService> logger) : IBackupService
 {
     public async Task<Backup> CreateBackupAsync(
         string applicationName,
@@ -20,7 +20,7 @@ public class BackupService(
         string createdBy,
         CancellationToken ct = default)
     {
-        var target = await ResolveTargetAsync(applicationName, environmentName, targetName, ct);
+        var (_, _, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
 
         if (!fs.DirectoryExists(target.DeploymentPath))
         {
@@ -128,19 +128,7 @@ public class BackupService(
             fs.DeleteDirectory(targetPath, recursive: true);
 
         fs.CreateDirectory(targetPath);
-
-        foreach (var srcFile in fs.EnumerateFiles(backup.BackupPath))
-        {
-            ct.ThrowIfCancellationRequested();
-            var relativePath = fs.GetRelativePath(backup.BackupPath, srcFile);
-            var destFile = fs.CombinePath(targetPath, relativePath);
-
-            var destDir = Path.GetDirectoryName(destFile)!;
-            if (!fs.DirectoryExists(destDir))
-                fs.CreateDirectory(destDir);
-
-            fs.CopyFile(srcFile, destFile, overwrite: true);
-        }
+        fs.CopyDirectory(backup.BackupPath, targetPath, overwrite: true, ct);
 
         logger.LogInformation("Backup {BackupId} restored to {Path}", backup.BackupId, targetPath);
         return backup;
@@ -149,7 +137,7 @@ public class BackupService(
     public async Task<IReadOnlyList<Backup>> ListBackupsAsync(
         string applicationName, string environmentName, string targetName, CancellationToken ct = default)
     {
-        var target = await ResolveTargetAsync(applicationName, environmentName, targetName, ct);
+        var (_, _, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
         return await backupRepo.ListByTargetAsync(target.Id, ct);
     }
 
@@ -177,16 +165,5 @@ public class BackupService(
         }
 
         return true;
-    }
-
-    private async Task<DeploymentTarget> ResolveTargetAsync(
-        string applicationName, string environmentName, string targetName, CancellationToken ct)
-    {
-        var app = await appRepo.GetByNameAsync(applicationName, ct)
-            ?? throw new InvalidOperationException($"Application '{applicationName}' not found.");
-        var env = await appRepo.GetEnvironmentAsync(app.Id, environmentName, ct)
-            ?? throw new InvalidOperationException($"Environment '{environmentName}' not found.");
-        return await appRepo.GetTargetAsync(env.Id, targetName, ct)
-            ?? throw new InvalidOperationException($"Target '{targetName}' not found.");
     }
 }

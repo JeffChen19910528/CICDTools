@@ -74,7 +74,7 @@ public class ReleaseServiceTests : IDisposable
     {
         var svcs = TestHelper.CreateServices(db, _tempDir);
         var service = new ReleaseService(
-            svcs.AppRepo, svcs.ReleaseRepo, svcs.Fs, svcs.Checksum,
+            svcs.Resolver, svcs.ReleaseRepo, svcs.Fs, svcs.Checksum,
             svcs.Audit, NullLogger<ReleaseService>.Instance);
         return (service, svcs.AppRepo);
     }

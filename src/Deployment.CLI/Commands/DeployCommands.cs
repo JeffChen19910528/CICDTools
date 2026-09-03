@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Deployment.Application.Interfaces;
 using Deployment.Application.Services;
 using Deployment.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,16 +35,10 @@ public static class DeployCommands
 
         cmd.SetHandler(async (app, env, target, version, op, dryRun, yes) =>
         {
-            var svc = services.GetRequiredService<DeploymentService>();
-            var diffSvc = services.GetRequiredService<DiffService>();
-            var releaseSvc = services.GetRequiredService<ReleaseService>();
-            var appRepo = services.GetRequiredService<Deployment.Application.Interfaces.IApplicationRepository>();
+            var svc = services.GetRequiredService<IDeploymentService>();
 
             if (!dryRun && !yes)
             {
-                var appEntity = await appRepo.GetByNameAsync(app);
-                var envEntity = appEntity != null ? await appRepo.GetEnvironmentAsync(appEntity.Id, env) : null;
-
                 AnsiConsole.WriteLine();
                 AnsiConsole.MarkupLine($"[yellow bold]WARNING:[/]");
                 AnsiConsole.MarkupLine($"  You are about to deploy version [bold]{version}[/]");
@@ -123,7 +118,7 @@ public static class DeployCommands
                 }
             }
 
-            var svc = services.GetRequiredService<DeploymentService>();
+            var svc = services.GetRequiredService<IDeploymentService>();
 
             await AnsiConsole.Status().StartAsync("Rolling back...", async ctx =>
             {
@@ -155,18 +150,13 @@ public static class DeployCommands
 
         cmd.SetHandler(async (app, env, target, version, showUnchanged) =>
         {
-            var releaseSvc = services.GetRequiredService<ReleaseService>();
-            var diffSvc = services.GetRequiredService<DiffService>();
-            var appRepo = services.GetRequiredService<Deployment.Application.Interfaces.IApplicationRepository>();
+            var releaseSvc = services.GetRequiredService<IReleaseService>();
+            var diffSvc = services.GetRequiredService<IDiffService>();
+            var resolver = services.GetRequiredService<ITargetResolver>();
 
             try
             {
-                var appEntity = await appRepo.GetByNameAsync(app)
-                    ?? throw new InvalidOperationException($"Application '{app}' not found.");
-                var envEntity = await appRepo.GetEnvironmentAsync(appEntity.Id, env)
-                    ?? throw new InvalidOperationException($"Environment '{env}' not found.");
-                var targetEntity = await appRepo.GetTargetAsync(envEntity.Id, target)
-                    ?? throw new InvalidOperationException($"Target '{target}' not found.");
+                var (_, _, targetEntity) = await resolver.ResolveTargetAsync(app, env, target);
                 var release = await releaseSvc.GetReleaseAsync($"{app}-{version}");
 
                 var diff = await diffSvc.ComputeAsync(

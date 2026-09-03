@@ -13,17 +13,18 @@ public class DeploymentOptions
 }
 
 public class DeploymentService(
+    ITargetResolver resolver,
     IApplicationRepository appRepo,
     IReleaseRepository releaseRepo,
     IDeploymentRepository deploymentRepo,
     IFileSystem fs,
     IChecksumService checksum,
     ILockService lockService,
-    BackupService backupService,
-    DiffService diffService,
+    IBackupService backupService,
+    IDiffService diffService,
     IAuditService audit,
     ILogger<DeploymentService> logger,
-    DeploymentOptions options)
+    DeploymentOptions options) : IDeploymentService
 {
     public async Task<DeploymentRecord> StartDeploymentAsync(
         string applicationName,
@@ -34,7 +35,7 @@ public class DeploymentService(
         bool isDryRun = false,
         CancellationToken ct = default)
     {
-        var (app, env, target) = await ResolveAsync(applicationName, environmentName, targetName, ct);
+        var (app, env, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
         var release = await releaseRepo.GetByVersionAsync(app.Id, releaseVersion, ct)
             ?? throw new InvalidOperationException($"Release '{releaseVersion}' not found.");
 
@@ -165,20 +166,7 @@ public class DeploymentService(
         await RunStepAsync(record, 4, "Deploy", async () =>
         {
             await SetStatusAsync(record, DeploymentStatus.Deploying, null, ct);
-
-            if (!fs.DirectoryExists(target.DeploymentPath))
-                fs.CreateDirectory(target.DeploymentPath);
-
-            foreach (var releaseFile in release.Files)
-            {
-                ct.ThrowIfCancellationRequested();
-                var srcFile = fs.CombinePath(release.PackagePath, releaseFile.RelativePath);
-                var destFile = fs.CombinePath(target.DeploymentPath, releaseFile.RelativePath);
-                var destDir = Path.GetDirectoryName(destFile)!;
-                if (!fs.DirectoryExists(destDir))
-                    fs.CreateDirectory(destDir);
-                fs.CopyFile(srcFile, destFile, overwrite: true);
-            }
+            fs.CopyDirectory(release.PackagePath, target.DeploymentPath, overwrite: true, ct);
         }, ct);
 
         // Step 5: Verify checksums
@@ -233,7 +221,7 @@ public class DeploymentService(
         string @operator,
         CancellationToken ct = default)
     {
-        var (app, env, target) = await ResolveAsync(applicationName, environmentName, targetName, ct);
+        var (app, env, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
         var release = await releaseRepo.GetByVersionAsync(app.Id, targetVersion, ct)
             ?? throw new InvalidOperationException($"Release '{targetVersion}' not found.");
 
@@ -265,20 +253,7 @@ public class DeploymentService(
                 throw new InvalidOperationException("Pre-rollback backup failed. Rollback aborted.");
 
             await SetStatusAsync(record, DeploymentStatus.RollingBack, null, ct);
-
-            if (!fs.DirectoryExists(target.DeploymentPath))
-                fs.CreateDirectory(target.DeploymentPath);
-
-            foreach (var releaseFile in release.Files)
-            {
-                ct.ThrowIfCancellationRequested();
-                var srcFile = fs.CombinePath(release.PackagePath, releaseFile.RelativePath);
-                var destFile = fs.CombinePath(target.DeploymentPath, releaseFile.RelativePath);
-                var destDir = Path.GetDirectoryName(destFile)!;
-                if (!fs.DirectoryExists(destDir))
-                    fs.CreateDirectory(destDir);
-                fs.CopyFile(srcFile, destFile, overwrite: true);
-            }
+            fs.CopyDirectory(release.PackagePath, target.DeploymentPath, overwrite: true, ct);
 
             await SetStatusAsync(record, DeploymentStatus.Verifying, null, ct);
             foreach (var releaseFile in release.Files)
@@ -340,7 +315,7 @@ public class DeploymentService(
     public async Task<IReadOnlyList<DeploymentRecord>> GetHistoryAsync(
         string applicationName, string environmentName, string targetName, CancellationToken ct = default)
     {
-        var (_, _, target) = await ResolveAsync(applicationName, environmentName, targetName, ct);
+        var (_, _, target) = await resolver.ResolveTargetAsync(applicationName, environmentName, targetName, ct);
         return await deploymentRepo.ListByTargetAsync(target.Id, 50, ct);
     }
 
@@ -382,15 +357,4 @@ public class DeploymentService(
         await deploymentRepo.UpdateAsync(record, ct);
     }
 
-    private async Task<(Domain.Entities.Application, AppEnvironment, DeploymentTarget)> ResolveAsync(
-        string app, string env, string target, CancellationToken ct)
-    {
-        var appEntity = await appRepo.GetByNameAsync(app, ct)
-            ?? throw new InvalidOperationException($"Application '{app}' not found.");
-        var envEntity = await appRepo.GetEnvironmentAsync(appEntity.Id, env, ct)
-            ?? throw new InvalidOperationException($"Environment '{env}' not found.");
-        var targetEntity = await appRepo.GetTargetAsync(envEntity.Id, target, ct)
-            ?? throw new InvalidOperationException($"Target '{target}' not found.");
-        return (appEntity, envEntity, targetEntity);
-    }
 }

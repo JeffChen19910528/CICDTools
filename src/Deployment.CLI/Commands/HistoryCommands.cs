@@ -29,7 +29,7 @@ public static class HistoryCommands
 
         cmd.SetHandler(async (app, env, target) =>
         {
-            var svc = services.GetRequiredService<DeploymentService>();
+            var svc = services.GetRequiredService<IDeploymentService>();
             var records = await svc.GetHistoryAsync(app, env, target);
 
             if (!records.Any()) { AnsiConsole.MarkupLine("[grey]No deployments found.[/]"); return; }

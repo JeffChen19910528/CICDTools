@@ -46,11 +46,12 @@ public static class ServiceCollectionExtensions
             DataPath = dataPath
         });
 
-        services.AddScoped<ReleaseService>();
-        services.AddScoped<BackupService>();
-        services.AddScoped<DiffService>();
-        services.AddScoped<DeploymentService>();
-        services.AddScoped<RetentionService>();
+        services.AddScoped<ITargetResolver, TargetResolver>();
+        services.AddScoped<IReleaseService, ReleaseService>();
+        services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<IDiffService, DiffService>();
+        services.AddScoped<IDeploymentService, DeploymentService>();
+        services.AddScoped<IRetentionService, RetentionService>();
 
         return services;
     }
