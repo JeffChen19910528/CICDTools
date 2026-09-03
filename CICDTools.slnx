@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Deployment.Application/Deployment.Application.csproj" />
+    <Project Path="src/Deployment.CLI/Deployment.CLI.csproj" />
+    <Project Path="src/Deployment.Domain/Deployment.Domain.csproj" />
+    <Project Path="src/Deployment.Infrastructure/Deployment.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Deployment.Tests/Deployment.Tests.csproj" />
+  </Folder>
+</Solution>

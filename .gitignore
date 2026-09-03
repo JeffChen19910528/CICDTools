@@ -1,0 +1,41 @@
+## .NET / C# ##
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+.vs/
+*.db
+*.db-shm
+*.db-wal
+design_time.db
+
+## Build output ##
+[Pp]ublish/
+[Rr]elease/
+x64/
+x86/
+
+## Test results ##
+TestResults/
+coverage/
+
+## NuGet ##
+*.nupkg
+.nuget/
+
+## Rider / JetBrains ##
+.idea/
+*.sln.iml
+
+## VS Code ##
+.vscode/
+
+## OS ##
+.DS_Store
+Thumbs.db
+
+## Runtime data (not committed) ##
+locks/
+backups/
+releases/
