@@ -1,6 +1,6 @@
 namespace Deployment.CLI;
 
-internal static class ByteFormatter
+public static class ByteFormatter
 {
     public static string Format(long bytes) =>
         bytes switch

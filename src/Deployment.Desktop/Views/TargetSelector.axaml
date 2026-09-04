@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Deployment.Desktop.Views.TargetSelector"
+             x:CompileBindings="False">
+    <StackPanel Orientation="Horizontal" Spacing="12">
+        <StackPanel Spacing="4" Width="200">
+            <TextBlock Name="AppLabel" FontSize="12" Foreground="Gray" />
+            <ComboBox Name="AppCombo" HorizontalAlignment="Stretch" SelectionChanged="OnAppChanged" />
+        </StackPanel>
+        <StackPanel Spacing="4" Width="200">
+            <TextBlock Name="EnvLabel" FontSize="12" Foreground="Gray" />
+            <ComboBox Name="EnvCombo" HorizontalAlignment="Stretch" SelectionChanged="OnEnvChanged" />
+        </StackPanel>
+        <StackPanel Spacing="4" Width="200">
+            <TextBlock Name="TargetLabel" FontSize="12" Foreground="Gray" />
+            <ComboBox Name="TargetCombo" HorizontalAlignment="Stretch" SelectionChanged="OnTargetChanged" />
+        </StackPanel>
+        <StackPanel Name="ReleasePanel" Spacing="4" Width="200">
+            <TextBlock Name="ReleaseLabel" FontSize="12" Foreground="Gray" />
+            <ComboBox Name="ReleaseCombo" HorizontalAlignment="Stretch" SelectionChanged="OnReleaseChanged" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Deployment.Desktop.Views.AddEnvironmentDialog"
+        Width="420" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Name="Header" FontWeight="Bold" FontSize="16" />
+        <StackPanel Spacing="4">
+            <TextBlock Name="AppLabel" FontSize="12" Foreground="Gray" />
+            <ComboBox Name="AppCombo" HorizontalAlignment="Stretch" SelectionChanged="OnAppChanged" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Name="NameLabel" FontSize="12" Foreground="Gray" />
+            <TextBox Name="NameBox" />
+        </StackPanel>
+        <CheckBox Name="RequireApprovalCheck" />
+        <TextBlock Name="ErrorText" Foreground="OrangeRed" IsVisible="False" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Name="CancelButton" Content="Cancel" Click="OnCancelClick" />
+            <Button Name="OkButton" Content="OK" Click="OnOkClick" IsDefault="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

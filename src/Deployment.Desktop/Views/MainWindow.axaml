@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Deployment.Desktop.Views.MainWindow"
+        Width="1100" Height="720"
+        Title="deployctl">
+    <Grid ColumnDefinitions="200,*">
+        <Border Grid.Column="0" Background="{DynamicResource SystemChromeMediumLowColor}">
+            <StackPanel Margin="0,16" Spacing="4">
+                <TextBlock Name="TitleText" Margin="16,0,16,16" FontWeight="Bold" FontSize="16" TextWrapping="Wrap" />
+                <ListBox Name="NavList" SelectionChanged="OnNavSelectionChanged" />
+            </StackPanel>
+        </Border>
+
+        <ContentControl Name="ContentHost" Grid.Column="1" Margin="16" />
+    </Grid>
+</Window>

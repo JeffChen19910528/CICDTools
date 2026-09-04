@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Deployment.Desktop.Views.LanguageView"
+             x:CompileBindings="False">
+    <StackPanel Spacing="12">
+        <TextBlock Name="Header" FontWeight="Bold" FontSize="18" />
+        <TextBlock Name="CurrentText" />
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+            <Button Name="EnglishButton" Content="English" Click="OnEnglishClick" />
+            <Button Name="ChineseButton" Content="繁體中文" Click="OnChineseClick" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

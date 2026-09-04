@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Deployment.CLI;
 using Deployment.Application.Interfaces;
 using Deployment.Application.Services;
 using Deployment.CLI.Commands;
@@ -12,14 +13,7 @@ if (OperatingSystem.IsWindows())
     try { Console.OutputEncoding = System.Text.Encoding.UTF8; } catch { /* redirected output stream */ }
 }
 
-var dataDir = Environment.GetEnvironmentVariable("DEPLOYCTL_DATA")
-    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "deployctl");
-
-var backupStore = Environment.GetEnvironmentVariable("DEPLOYCTL_BACKUPS")
-    ?? Path.Combine(dataDir, "backups");
-
-var releasesStore = Environment.GetEnvironmentVariable("DEPLOYCTL_RELEASES")
-    ?? Path.Combine(dataDir, "releases");
+var (dataDir, backupStore, releasesStore) = DataPaths.Resolve();
 
 var services = new ServiceCollection()
     .AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning))

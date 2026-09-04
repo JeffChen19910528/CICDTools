@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Deployment.Desktop.Views.MessageDialog"
+        Width="460" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="16">
+        <TextBlock Name="MessageText" TextWrapping="Wrap" FontSize="14" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Name="OkButton" Click="OnOkClick" IsDefault="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Deployment.Desktop.Views.ReleasesView"
+             x:CompileBindings="False">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Name="Header" FontWeight="Bold" FontSize="18" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <ComboBox Name="AppCombo" Width="200" SelectionChanged="OnAppChanged" />
+            <Button Name="CreateReleaseButton" Click="OnCreateReleaseClick" />
+            <Button Name="RefreshButton" Click="OnRefreshClick" />
+        </StackPanel>
+        <DataGrid Name="Grid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" DoubleTapped="OnRowDoubleTapped">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Release ID" Binding="{Binding ReleaseId}" Width="220" />
+                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="120" />
+                <DataGridTextColumn Header="Created" Binding="{Binding Created}" Width="160" />
+                <DataGridTextColumn Header="By" Binding="{Binding CreatedBy}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

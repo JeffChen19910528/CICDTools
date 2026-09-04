@@ -18,7 +18,8 @@
 - **歷史紀錄與稽核（History / Audit）**：每一次部署、回滾、備份都會留下時間、操作者、結果的完整紀錄。
 - **異常恢復（Recovery）**：如果部署過程中程式意外中斷，下次啟動可以查看未完成的部署並決定如何處理，不會自動硬幹下去。
 - **互動式選單介面**：直接雙擊執行檔即可開啟文字選單操作，不需要背指令；同時支援**英文／繁體中文**語言切換。
-- **仍保留命令列操作**：熟悉指令的使用者（例如寫自動化腳本）可以繼續用 `deployctl <command> ...` 的方式操作，兩種介面共用同一套資料，可以混著用。
+- **桌面圖形介面（GUI）**：另有 `deployctl-gui` 桌面應用程式，所有操作都用滑鼠點選、下拉選單、資料夾選擇對話框完成，完全不需要手動輸入路徑或記指令，適合不熟悉終端機的使用者。
+- **仍保留命令列操作**：熟悉指令的使用者（例如寫自動化腳本）可以繼續用 `deployctl <command> ...` 的方式操作，文字選單、GUI、命令列三種介面共用同一套資料，可以混著用。
 
 ## 給非資訊人員：如何使用
 
@@ -45,6 +46,21 @@
 主選單包含以下功能，對應到上面「這個工具能做什麼」的每一項：應用程式管理、版本管理、部署與回滾、備份管理、歷史與稽核紀錄、異常復原、語言設定。所有需要選擇應用程式／環境／部署目標的地方，都會列出目前已建立的項目讓你直接選，不需要手動輸入完整名稱。
 
 > 若在沒有終端機視窗的環境下執行（例如某些自動化腳本把輸出重新導向到檔案），程式會自動改成顯示指令說明，而不是嘗試開啟選單。
+
+### 桌面圖形介面（GUI）
+
+如果不想用終端機文字選單，也可以改用桌面圖形介面 `deployctl-gui`（Windows 為
+`deployctl-gui.exe`）。功能與文字選單完全對應（應用程式管理、版本管理、部署與回滾、備份管理、
+歷史與稽核紀錄、異常復原、語言設定），差別在於：
+
+- 所有「選擇應用程式／環境／部署目標／版本」的地方都是下拉選單，用滑鼠點選即可。
+- 新增部署目標的路徑、建立版本的來源資料夾，都可以按「瀏覽…」用系統原生的資料夾選擇視窗挑選，
+  不需要手動輸入路徑、也就不會有打錯路徑的問題。
+- 正式部署、回滾、清理備份等有風險的操作，一樣會先跳出確認對話框才會執行。
+
+GUI 與文字選單、命令列共用同一份資料庫、備份、版本目錄（受同一組 `DEPLOYCTL_DATA` /
+`DEPLOYCTL_BACKUPS` / `DEPLOYCTL_RELEASES` 環境變數控制），可以今天用 GUI 建立 App，
+明天用命令列部署，資料互通。
 
 ## 開發者：如何編譯
 
@@ -245,7 +261,9 @@ deployctl recovery mark-failed DEP-20260101-120000
 Deployment.Domain          — 核心實體（Release、Deployment、Backup、Target、RetentionPolicy）
 Deployment.Application     — 業務邏輯服務與介面定義（見下方「低耦合設計」）
 Deployment.Infrastructure  — 平台實作（檔案系統、SQLite 資料庫、鎖定機制等）
-Deployment.CLI             — deployctl 命令列介面 + 互動式選單（Interactive/）+ 語言在地化（Localization/）
+Deployment.Shared          — CLI 與 GUI 共用的語言在地化（Localization/）與設定儲存（Settings/）
+Deployment.CLI             — deployctl 命令列介面 + 互動式文字選單（Interactive/）
+Deployment.Desktop         — deployctl-gui 桌面圖形介面（Avalonia，跨平台 Windows/Linux）
 Deployment.Tests           — 單元測試與整合測試（含以 Spectre.Console.Testing 腳本化操作互動式選單的測試）
 ```
 

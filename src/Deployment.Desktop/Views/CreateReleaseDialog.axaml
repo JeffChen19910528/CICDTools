@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Deployment.Desktop.Views.CreateReleaseDialog"
+        Width="480" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Name="Header" FontWeight="Bold" FontSize="16" />
+        <StackPanel Spacing="4">
+            <TextBlock Name="VersionLabel" FontSize="12" Foreground="Gray" />
+            <TextBox Name="VersionBox" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Name="SourceLabel" FontSize="12" Foreground="Gray" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Name="SourceBox" Grid.Column="0" />
+                <Button Name="BrowseButton" Grid.Column="1" Margin="8,0,0,0" Click="OnBrowseClick" />
+            </Grid>
+        </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Name="NotesLabel" FontSize="12" Foreground="Gray" />
+            <TextBox Name="NotesBox" AcceptsReturn="True" Height="70" TextWrapping="Wrap" />
+        </StackPanel>
+        <TextBlock Name="ErrorText" Foreground="OrangeRed" IsVisible="False" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Name="CancelButton" Content="Cancel" Click="OnCancelClick" />
+            <Button Name="OkButton" Content="OK" Click="OnOkClick" IsDefault="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Deployment.Desktop.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="StatusGreenBrush" Color="#2E7D32" />
+        <SolidColorBrush x:Key="StatusRedBrush" Color="#C62828" />
+        <SolidColorBrush x:Key="StatusYellowBrush" Color="#B8860B" />
+        <SolidColorBrush x:Key="StatusGreyBrush" Color="#757575" />
+    </Application.Resources>
+
+</Application>

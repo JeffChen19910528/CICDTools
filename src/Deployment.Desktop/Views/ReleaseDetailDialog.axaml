@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Deployment.Desktop.Views.ReleaseDetailDialog"
+        Width="640" Height="520"
+        WindowStartupLocation="CenterOwner"
+        x:CompileBindings="False">
+    <DockPanel Margin="20">
+        <TextBlock Name="Header" DockPanel.Dock="Top" FontWeight="Bold" FontSize="16" Margin="0,0,0,8" />
+        <TextBlock Name="MetaText" DockPanel.Dock="Top" Margin="0,0,0,4" />
+        <TextBlock Name="NotesText" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <TextBlock Name="FilesHeader" DockPanel.Dock="Top" FontWeight="Bold" Margin="0,0,0,8" />
+        <Button Name="CloseButton" DockPanel.Dock="Bottom" HorizontalAlignment="Right" Margin="0,12,0,0" Click="OnCloseClick" />
+        <DataGrid Name="FilesGrid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="*" />
+                <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="100" />
+                <DataGridTextColumn Header="SHA-256" Binding="{Binding Sha}" Width="180" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

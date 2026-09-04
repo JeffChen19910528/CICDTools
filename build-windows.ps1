@@ -21,9 +21,23 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 
 $cliProject = Join-Path $PSScriptRoot "src\Deployment.CLI\Deployment.CLI.csproj"
+$guiProject = Join-Path $PSScriptRoot "src\Deployment.Desktop\Deployment.Desktop.csproj"
 
-Write-Host "==> Publishing self-contained single-file executable for win-x64..." -ForegroundColor Cyan
+Write-Host "==> Publishing self-contained single-file executable for win-x64 (CLI)..." -ForegroundColor Cyan
 dotnet publish $cliProject `
+    -c Release `
+    -r win-x64 `
+    --self-contained true `
+    -p:PublishSingleFile=true `
+    -o $OutputDir
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build failed." -ForegroundColor Red
+    exit $LASTEXITCODE
+}
+
+Write-Host "==> Publishing self-contained single-file executable for win-x64 (Desktop GUI)..." -ForegroundColor Cyan
+dotnet publish $guiProject `
     -c Release `
     -r win-x64 `
     --self-contained true `
@@ -37,5 +51,6 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "==> Build complete!" -ForegroundColor Green
-Write-Host "    Executable: $OutputDir\deployctl.exe"
-Write-Host "    Copy this single file to any Windows machine and run it — no .NET install needed."
+Write-Host "    CLI executable: $OutputDir\deployctl.exe"
+Write-Host "    GUI executable: $OutputDir\deployctl-gui.exe"
+Write-Host "    Copy these files to any Windows machine and run them — no .NET install needed."
