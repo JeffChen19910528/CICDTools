@@ -31,7 +31,7 @@ public interface IBackupService
         string createdBy,
         CancellationToken ct = default);
 
-    Task<Backup> RestoreBackupAsync(Backup backup, string targetPath, CancellationToken ct = default);
+    Task<Backup> RestoreBackupAsync(Backup backup, string targetPath, string? backupExcludes = null, CancellationToken ct = default);
 
     Task<IReadOnlyList<Backup>> ListBackupsAsync(
         string applicationName, string environmentName, string targetName, CancellationToken ct = default);

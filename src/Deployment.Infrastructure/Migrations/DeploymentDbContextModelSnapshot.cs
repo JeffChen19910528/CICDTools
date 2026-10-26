@@ -303,6 +303,12 @@ namespace Deployment.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("BackupExcludes")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("log;logs");
+
                     b.Property<string>("CurrentRelease")
                         .HasColumnType("TEXT");
 

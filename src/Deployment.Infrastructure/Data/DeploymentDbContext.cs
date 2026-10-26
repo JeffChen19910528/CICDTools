@@ -42,6 +42,7 @@ public class DeploymentDbContext(DbContextOptions<DeploymentDbContext> options) 
         {
             e.HasKey(x => x.Id);
             e.Property(x => x.OS).HasConversion<string>();
+            e.Property(x => x.BackupExcludes).HasDefaultValue(DeploymentTarget.DefaultBackupExcludes);
             e.HasMany(x => x.Deployments).WithOne(x => x.Target).HasForeignKey(x => x.TargetId);
             e.HasMany(x => x.Backups).WithOne(x => x.Target).HasForeignKey(x => x.TargetId);
         });

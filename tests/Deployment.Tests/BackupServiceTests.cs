@@ -34,6 +34,31 @@ public class BackupServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task CreateBackup_SkipsExcludedLogDirectories()
+    {
+        var db = TestHelper.CreateDb();
+        var (svc, appRepo) = BuildService(db);
+
+        var deployPath = Path.Combine(_tempDir, "deploy");
+        TestHelper.CreateFiles(deployPath, new Dictionary<string, string>
+        {
+            ["app.exe"] = "binary content",
+            ["logs/app.log"] = "big log",
+            ["Log/old.log"] = "big log",
+            ["sub/logs/x.log"] = "big log",
+            ["sub/config.json"] = "{}"
+        });
+        await TestHelper.CreateAppAsync(appRepo, deployPath: deployPath);
+
+        var backupStore = Path.Combine(_tempDir, "backups");
+        var backup = await svc.CreateBackupAsync("TestApp", "Test", "server01", backupStore, "admin");
+
+        Assert.Equal(BackupStatus.Verified, backup.Status);
+        Assert.Equal(2, backup.FileCount);
+        Assert.False(Directory.Exists(Path.Combine(backup.BackupPath, "logs")));
+    }
+
+    [Fact]
     public async Task CreateBackup_EmptyDirectory_CreatesEmptyBackup()
     {
         var db = TestHelper.CreateDb();

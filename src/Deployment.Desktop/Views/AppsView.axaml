@@ -9,6 +9,7 @@
             <Button Name="CreateAppButton" Click="OnCreateAppClick" />
             <Button Name="AddEnvButton" Click="OnAddEnvClick" />
             <Button Name="AddTargetButton" Click="OnAddTargetClick" />
+            <Button Name="EditExcludesButton" Click="OnEditExcludesClick" />
             <Button Name="RefreshButton" Click="OnRefreshClick" />
         </StackPanel>
         <DataGrid Name="Grid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">

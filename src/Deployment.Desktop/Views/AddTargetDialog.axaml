@@ -32,6 +32,10 @@
                 <Button Name="BrowseButton" Grid.Column="1" Margin="8,0,0,0" Click="OnBrowseClick" />
             </Grid>
         </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Name="ExcludeLabel" FontSize="12" Foreground="Gray" TextWrapping="Wrap" />
+            <TextBox Name="ExcludeBox" />
+        </StackPanel>
         <TextBlock Name="ErrorText" Foreground="OrangeRed" IsVisible="False" TextWrapping="Wrap" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Name="CancelButton" Content="Cancel" Click="OnCancelClick" />

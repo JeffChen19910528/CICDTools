@@ -66,7 +66,7 @@ public class InteractiveMenuTests : IDisposable
         console.Input.PushKey(ConsoleKey.Enter); // pause after success message
 
         // 5. Back in the apps submenu, move down to "Back" (5th item) -> Enter.
-        for (var i = 0; i < 4; i++) console.Input.PushKey(ConsoleKey.DownArrow);
+        for (var i = 0; i < 5; i++) console.Input.PushKey(ConsoleKey.DownArrow);
         console.Input.PushKey(ConsoleKey.Enter);
 
         // 6. Back at the main menu, move down to "Exit" (8th item) -> Enter.
@@ -191,10 +191,11 @@ public class InteractiveMenuTests : IDisposable
         console.Input.PushKey(ConsoleKey.Enter); // OS: Windows (default first choice)
         console.Input.PushKey(ConsoleKey.Enter); // host: accept default "localhost"
         console.Input.PushTextWithEnter(Path.Combine(_tempDir, "deployed"));
+        console.Input.PushKey(ConsoleKey.Enter); // backup excludes: accept default "log;logs"
         console.Input.PushKey(ConsoleKey.Enter); // pause after success message
 
-        // Apps submenu -> Back (index 4).
-        for (var i = 0; i < 4; i++) console.Input.PushKey(ConsoleKey.DownArrow);
+        // Apps submenu -> Back (index 5).
+        for (var i = 0; i < 5; i++) console.Input.PushKey(ConsoleKey.DownArrow);
         console.Input.PushKey(ConsoleKey.Enter);
 
         // Main menu -> Release Management (index 1).

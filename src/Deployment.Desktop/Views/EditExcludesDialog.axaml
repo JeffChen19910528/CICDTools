@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:Deployment.Desktop.Views"
+        x:Class="Deployment.Desktop.Views.EditExcludesDialog"
+        Width="460" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Name="Header" FontWeight="Bold" FontSize="16" />
+        <views:TargetSelector Name="Selector" />
+        <StackPanel Spacing="4">
+            <TextBlock Name="ExcludeLabel" FontSize="12" Foreground="Gray" TextWrapping="Wrap" />
+            <TextBox Name="ExcludeBox" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Name="CancelButton" Click="OnCancelClick" />
+            <Button Name="OkButton" Click="OnOkClick" IsDefault="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

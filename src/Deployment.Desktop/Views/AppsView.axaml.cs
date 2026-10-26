@@ -22,6 +22,7 @@ public partial class AppsView : UserControl
         CreateAppButton.Content = L.T("app.menu.create");
         AddEnvButton.Content = L.T("app.menu.addEnv");
         AddTargetButton.Content = L.T("app.menu.addTarget");
+        EditExcludesButton.Content = L.T("app.menu.editExcludes");
         RefreshButton.Content = L.T("common.refresh");
 
         Grid.Columns[0].Header = L.T("app.list.colApp");
@@ -97,7 +98,7 @@ public partial class AppsView : UserControl
         }
 
         var dialog = new AddTargetDialog(apps);
-        var result = await dialog.ShowDialog<(Domain.Entities.AppEnvironment Env, string Name, Domain.Entities.TargetOS Os, string Host, string Path)?>(_owner);
+        var result = await dialog.ShowDialog<(Domain.Entities.AppEnvironment Env, string Name, Domain.Entities.TargetOS Os, string Host, string Path, string BackupExcludes)?>(_owner);
         if (result is null) return;
 
         await _services.AppRepo.AddTargetAsync(new Domain.Entities.DeploymentTarget
@@ -106,9 +107,22 @@ public partial class AppsView : UserControl
             Name = result.Value.Name,
             OS = result.Value.Os,
             Host = result.Value.Host,
-            DeploymentPath = result.Value.Path
+            DeploymentPath = result.Value.Path,
+            BackupExcludes = result.Value.BackupExcludes
         });
         await RefreshAsync();
+    }
+
+    private async void OnEditExcludesClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var dialog = new EditExcludesDialog(_services);
+        var result = await dialog.ShowDialog<(Domain.Entities.DeploymentTarget Target, string BackupExcludes)?>(_owner);
+        if (result is null) return;
+
+        result.Value.Target.BackupExcludes = result.Value.BackupExcludes;
+        await _services.AppRepo.UpdateTargetAsync(result.Value.Target);
+        await DialogService.ShowMessageAsync(_owner, L.T("app.menu.editExcludes"),
+            L.T("app.target.excludesUpdated", result.Value.Target.Name));
     }
 
     private async void OnRefreshClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await RefreshAsync();

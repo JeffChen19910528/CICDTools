@@ -64,6 +64,7 @@ public static class L
         ["app.menu.create"] = ("Create Application", "新增應用程式"),
         ["app.menu.addEnv"] = ("Add Environment", "新增環境"),
         ["app.menu.addTarget"] = ("Add Deployment Target", "新增部署目標"),
+        ["app.menu.editExcludes"] = ("Edit Backup Excludes", "修改備份排除目錄"),
         ["app.menu.list"] = ("List Applications", "列出所有應用程式"),
 
         ["app.create.namePrompt"] = ("Application name:", "應用程式名稱："),
@@ -80,6 +81,8 @@ public static class L
         ["app.target.osPrompt"] = ("Target operating system:", "目標作業系統："),
         ["app.target.hostPrompt"] = ("Host name or address (default: localhost):", "主機名稱或位址（預設：localhost）："),
         ["app.target.pathPrompt"] = ("Deployment path on the target (e.g. C:\\apps\\myapp or /var/www/myapp):", "目標上的部署路徑（例如：C:\\apps\\myapp 或 /var/www/myapp）："),
+        ["app.target.excludePrompt"] = ("Subdirectories to skip when backing up, separated by ';' (e.g. logs;tmp):", "備份時要略過的子目錄，以「;」分隔（例如：logs;tmp）："),
+        ["app.target.excludesUpdated"] = ("Backup excludes for '{0}' updated.", "目標「{0}」的備份排除目錄已更新。"),
         ["app.target.success"] = ("Target '{0}' added.", "目標「{0}」已新增。"),
 
         ["app.list.title"] = ("Registered Applications", "已登記的應用程式"),

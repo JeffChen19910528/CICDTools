@@ -18,12 +18,13 @@ public partial class InteractiveMenu
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>().Title(L.T("menu.prompt")).AddChoices(
                     L.T("app.menu.create"), L.T("app.menu.addEnv"),
-                    L.T("app.menu.addTarget"), L.T("app.menu.list"), back));
+                    L.T("app.menu.addTarget"), L.T("app.menu.editExcludes"), L.T("app.menu.list"), back));
 
             if (choice == back) return;
             if (choice == L.T("app.menu.create")) await CreateApplicationAsync();
             else if (choice == L.T("app.menu.addEnv")) await AddEnvironmentAsync();
             else if (choice == L.T("app.menu.addTarget")) await AddTargetAsync();
+            else if (choice == L.T("app.menu.editExcludes")) await EditBackupExcludesAsync();
             else if (choice == L.T("app.menu.list")) await ListApplicationsAsync();
         }
     }
@@ -93,6 +94,8 @@ public partial class InteractiveMenu
             new SelectionPrompt<TargetOS>().Title(L.T("app.target.osPrompt")).AddChoices(TargetOS.Windows, TargetOS.Linux));
         var host = AnsiConsole.Prompt(new TextPrompt<string>(L.T("app.target.hostPrompt")).DefaultValue("localhost"));
         var path = AnsiConsole.Ask<string>(L.T("app.target.pathPrompt"));
+        var excludes = AnsiConsole.Prompt(
+            new TextPrompt<string>(L.T("app.target.excludePrompt")).DefaultValue(DeploymentTarget.DefaultBackupExcludes).AllowEmpty());
 
         await appRepo.AddTargetAsync(new DeploymentTarget
         {
@@ -100,9 +103,26 @@ public partial class InteractiveMenu
             Name = name,
             OS = os,
             Host = host,
-            DeploymentPath = path
+            DeploymentPath = path,
+            BackupExcludes = excludes
         });
         AnsiConsole.MarkupLine($"[green]{L.T("app.target.success", name)}[/]");
+        Pause();
+    }
+
+    private async Task EditBackupExcludesAsync()
+    {
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine($"[bold]{L.T("app.menu.editExcludes")}[/]\n");
+
+        var chain = await SelectTargetChainAsync();
+        if (chain is null) return;
+        var target = chain.Value.Target;
+
+        target.BackupExcludes = AnsiConsole.Prompt(
+            new TextPrompt<string>(L.T("app.target.excludePrompt")).DefaultValue(target.BackupExcludes).AllowEmpty());
+        await appRepo.UpdateTargetAsync(target);
+        AnsiConsole.MarkupLine($"[green]{L.T("app.target.excludesUpdated", target.Name)}[/]");
         Pause();
     }
 

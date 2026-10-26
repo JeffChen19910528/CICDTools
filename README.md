@@ -13,6 +13,7 @@
 - **部署（Deploy）**：將指定版本部署到指定的應用程式／環境／目標（例如 `MyApp / production / web1`）。
 - **部署前差異比對（Diff）**：部署前先看清楚哪些檔案會新增、修改、刪除。
 - **自動備份（Backup）**：部署或回滾前一定會先備份目前狀態，並驗證備份完整性；備份失敗就不會繼續部署。
+- **備份排除目錄**：每個部署目標可以設定備份時要略過的子目錄（預設略過 `log`、`logs`），避免佔空間又不屬於版更內容的 log 被一起備份。
 - **一鍵回滾（Rollback）**：部署後發現問題，可以直接回到先前的版本，回滾前也會先備份現況。
 - **保留政策（Retention）**：自動清理過期備份，但受保護、被回滾候選版本引用、或未滿最少保留數量的備份不會被刪除。
 - **歷史紀錄與稽核（History / Audit）**：每一次部署、回滾、備份都會留下時間、操作者、結果的完整紀錄。
@@ -56,6 +57,8 @@
 - 所有「選擇應用程式／環境／部署目標／版本」的地方都是下拉選單，用滑鼠點選即可。
 - 新增部署目標的路徑、建立版本的來源資料夾，都可以按「瀏覽…」用系統原生的資料夾選擇視窗挑選，
   不需要手動輸入路徑、也就不會有打錯路徑的問題。
+- 新增部署目標時可填入「備份排除目錄」（預設 `log;logs`）；之後可在「應用程式管理」頁按
+  「修改備份排除目錄」，選好目標後直接改寫並按確定。
 - 正式部署、回滾、清理備份等有風險的操作，一樣會先跳出確認對話框才會執行。
 
 GUI 與文字選單、命令列共用同一份資料庫、備份、版本目錄（受同一組 `DEPLOYCTL_DATA` /
@@ -132,6 +135,12 @@ deployctl app add-env MyApp production --require-approval
 # 在環境底下新增部署目標（實際會被部署檔案的機器與路徑）
 deployctl app add-target MyApp production web1 /var/www/myapp --os linux --host 192.168.1.10
 
+# 新增目標時指定備份要略過的子目錄（以分號分隔；不指定則預設為 "log;logs"）
+deployctl app add-target MyApp production web2 /var/www/myapp --exclude "logs;tmp;cache"
+
+# 修改既有目標的備份排除清單（傳入空字串 "" 代表不排除任何目錄）
+deployctl app set-excludes MyApp production web1 "logs;uploads/temp"
+
 # 查看目前登記的所有應用程式、環境、目標
 deployctl app list
 ```
@@ -193,6 +202,14 @@ deployctl deploy rollback MyApp production web1 1.0.0 --yes
 回滾前一樣會先備份目前狀態，避免回滾本身又造成資料遺失。
 
 ### 6. 備份管理
+
+備份會略過目標設定的「排除目錄」（見上方第 1 節，預設 `log`、`logs`），被略過的檔案不會複製、
+不計入檔案數與大小，也不參與完整性驗證。排除規則：
+
+- 只寫目錄名稱（例如 `logs`）：任何深度、名稱相符的目錄都會略過（`logs/`、`sub/logs/`），不分大小寫。
+- 寫相對路徑（例如 `data/cache`）：只略過從部署目錄算起的那一條路徑。
+- 修改排除清單只影響之後建立的備份，不會改動已存在的備份。
+- 互動式選單：「應用程式管理」→「修改備份排除目錄」；新增部署目標時也會詢問。
 
 ```bash
 # 手動建立一次備份（不透過部署流程）
@@ -259,7 +276,7 @@ deployctl recovery mark-failed DEP-20260101-120000
 
 ```
 Deployment.Domain          — 核心實體（Release、Deployment、Backup、Target、RetentionPolicy）
-Deployment.Application     — 業務邏輯服務與介面定義（見下方「低耦合設計」）
+Deployment.Application     — 業務邏輯服務與介面定義
 Deployment.Infrastructure  — 平台實作（檔案系統、SQLite 資料庫、鎖定機制等）
 Deployment.Shared          — CLI 與 GUI 共用的語言在地化（Localization/）與設定儲存（Settings/）
 Deployment.CLI             — deployctl 命令列介面 + 互動式文字選單（Interactive/）
@@ -268,15 +285,3 @@ Deployment.Tests           — 單元測試與整合測試（含以 Spectre.Cons
 ```
 
 作業系統相關邏輯一律透過介面隔離（`IFileSystem`、`IChecksumService`、`ILockService` 等），核心引擎不會有任何 Windows 或 Linux 專屬程式碼。
-
-### 低耦合設計
-
-`Deployment.Application` 內的每個業務服務都對外暴露介面（`IReleaseService`、`IBackupService`、`IDiffService`、`IDeploymentService`、`IRetentionService`），並以介面而非具體類別互相依賴、被 CLI 呼叫、被 DI 容器註冊——調整某個服務的實作不會牽動其他服務或 CLI 層。
-
-幾個共用邏輯也集中管理，避免重複：
-
-- **`ITargetResolver`**：統一負責「應用程式／環境／目標」三層查找與找不到時的錯誤訊息，取代原本在 `BackupService`、`DeploymentService`、`RetentionService`、CLI 的 `deploy diff` 指令中各自重複的查找程式碼。
-- **`IFileSystem.CopyDirectory`**：統一負責遞迴複製整個目錄（部署、回滾、備份還原都會用到），取代三處幾乎相同的複製迴圈。
-- **`ByteFormatter`**（CLI 層）：統一負責位元組數字轉換成人類可讀格式（B/KB/MB/GB），取代 `release show` 與 `backup list` 指令中重複的格式化程式碼。
-
-這些抽象讓新增功能（例如未來的遠端部署、Web UI）可以直接重用現有服務介面，而不需要碰觸實作細節。

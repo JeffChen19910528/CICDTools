@@ -15,6 +15,7 @@ public static class AppCommands
         cmd.AddCommand(BuildCreate(services));
         cmd.AddCommand(BuildAddEnv(services));
         cmd.AddCommand(BuildAddTarget(services));
+        cmd.AddCommand(BuildSetExcludes(services));
         cmd.AddCommand(BuildList(services));
 
         return cmd;
@@ -80,9 +81,12 @@ public static class AppCommands
         var osOpt = new Option<string>("--os", () => "windows", "Target OS (windows|linux)");
         var hostOpt = new Option<string>("--host", () => "localhost", "Host name");
 
-        var cmd = new Command("add-target", "Add a deployment target") { appArg, envArg, nameArg, pathArg, osOpt, hostOpt };
+        var excludeOpt = new Option<string>("--exclude", () => DeploymentTarget.DefaultBackupExcludes,
+            "Semicolon-separated subdirectories to skip when backing up (e.g. \"logs;tmp\")");
 
-        cmd.SetHandler(async (app, env, name, path, os, host) =>
+        var cmd = new Command("add-target", "Add a deployment target") { appArg, envArg, nameArg, pathArg, osOpt, hostOpt, excludeOpt };
+
+        cmd.SetHandler(async (app, env, name, path, os, host, exclude) =>
         {
             var repo = services.GetRequiredService<IApplicationRepository>();
             var appEntity = await repo.GetByNameAsync(app);
@@ -98,10 +102,40 @@ public static class AppCommands
                 Name = name,
                 OS = targetOs,
                 Host = host,
-                DeploymentPath = path
+                DeploymentPath = path,
+                BackupExcludes = exclude
             });
             AnsiConsole.MarkupLine($"[green]Target '[bold]{name}[/]' ({os}) added to {app}/{env} → {path}[/]");
-        }, appArg, envArg, nameArg, pathArg, osOpt, hostOpt);
+        }, appArg, envArg, nameArg, pathArg, osOpt, hostOpt, excludeOpt);
+
+        return cmd;
+    }
+
+    private static Command BuildSetExcludes(IServiceProvider services)
+    {
+        var appArg = new Argument<string>("app");
+        var envArg = new Argument<string>("environment");
+        var nameArg = new Argument<string>("target", "Target name");
+        var excludeArg = new Argument<string>("excludes", "Semicolon-separated subdirectories to skip when backing up (empty string = back up everything)");
+
+        var cmd = new Command("set-excludes", "Change the backup exclude list of an existing target") { appArg, envArg, nameArg, excludeArg };
+
+        cmd.SetHandler(async (app, env, name, excludes) =>
+        {
+            var repo = services.GetRequiredService<IApplicationRepository>();
+            var appEntity = await repo.GetByNameAsync(app);
+            if (appEntity == null) { AnsiConsole.MarkupLine($"[red]Application '{app}' not found.[/]"); return; }
+
+            var envEntity = await repo.GetEnvironmentAsync(appEntity.Id, env);
+            if (envEntity == null) { AnsiConsole.MarkupLine($"[red]Environment '{env}' not found.[/]"); return; }
+
+            var target = await repo.GetTargetAsync(envEntity.Id, name);
+            if (target == null) { AnsiConsole.MarkupLine($"[red]Target '{name}' not found.[/]"); return; }
+
+            target.BackupExcludes = excludes;
+            await repo.UpdateTargetAsync(target);
+            AnsiConsole.MarkupLine($"[green]Backup excludes for '[bold]{name}[/]' set to: {Markup.Escape(excludes)}[/]");
+        }, appArg, envArg, nameArg, excludeArg);
 
         return cmd;
     }

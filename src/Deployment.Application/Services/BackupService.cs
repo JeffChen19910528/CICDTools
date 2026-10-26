@@ -52,12 +52,14 @@ public class BackupService(
         var files = new List<BackupFile>();
         long totalBytes = 0;
 
+        var excludes = BackupExclusion.Parse(target.BackupExcludes);
         if (fs.DirectoryExists(target.DeploymentPath))
         {
             foreach (var srcFile in fs.EnumerateFiles(target.DeploymentPath))
             {
                 ct.ThrowIfCancellationRequested();
                 var relativePath = fs.GetRelativePath(target.DeploymentPath, srcFile);
+                if (BackupExclusion.IsExcluded(relativePath, excludes)) continue;
                 var destFile = fs.CombinePath(backupPath, relativePath);
 
                 var destDir = Path.GetDirectoryName(destFile)!;
@@ -117,6 +119,7 @@ public class BackupService(
     public async Task<Backup> RestoreBackupAsync(
         Backup backup,
         string targetPath,
+        string? backupExcludes = null,
         CancellationToken ct = default)
     {
         if (backup.Status != BackupStatus.Verified)
@@ -124,8 +127,17 @@ public class BackupService(
 
         logger.LogInformation("Restoring backup {BackupId} to {Path}", backup.BackupId, targetPath);
 
+        // Excluded paths (e.g. logs) were never backed up, so restoring must not wipe them.
+        var excludes = BackupExclusion.Parse(backupExcludes);
         if (fs.DirectoryExists(targetPath))
-            fs.DeleteDirectory(targetPath, recursive: true);
+        {
+            if (excludes.Length == 0)
+                fs.DeleteDirectory(targetPath, recursive: true);
+            else
+                foreach (var file in fs.EnumerateFiles(targetPath).ToList())
+                    if (!BackupExclusion.IsExcluded(fs.GetRelativePath(targetPath, file), excludes))
+                        fs.DeleteFile(file);
+        }
 
         fs.CreateDirectory(targetPath);
         fs.CopyDirectory(backup.BackupPath, targetPath, overwrite: true, ct);

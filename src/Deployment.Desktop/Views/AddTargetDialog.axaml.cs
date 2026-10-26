@@ -24,6 +24,8 @@ public partial class AddTargetDialog : Window
         OsLabel.Text = L.T("app.target.osPrompt");
         HostLabel.Text = L.T("app.target.hostPrompt");
         PathLabel.Text = L.T("app.target.pathPrompt");
+        ExcludeLabel.Text = L.T("app.target.excludePrompt");
+        ExcludeBox.Text = DeploymentTarget.DefaultBackupExcludes;
         BrowseButton.Content = L.T("common.browse");
         OkButton.Content = L.T("common.ok");
         CancelButton.Content = L.T("common.cancel");
@@ -64,7 +66,7 @@ public partial class AddTargetDialog : Window
         var os = (TargetOS)OsCombo.SelectedItem!;
         var host = string.IsNullOrWhiteSpace(HostBox.Text) ? "localhost" : HostBox.Text.Trim();
 
-        Close((SelectedEnvironment, NameBox.Text.Trim(), os, host, PathBox.Text.Trim()));
+        Close((SelectedEnvironment, NameBox.Text.Trim(), os, host, PathBox.Text.Trim(), ExcludeBox.Text?.Trim() ?? string.Empty));
     }
 
     private void OnCancelClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => Close(null);
