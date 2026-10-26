@@ -4,10 +4,10 @@
              x:CompileBindings="False">
     <DockPanel>
         <TextBlock Name="Header" DockPanel.Dock="Top" FontWeight="Bold" FontSize="18" Margin="0,0,0,12" />
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+        <WrapPanel DockPanel.Dock="Top" ItemSpacing="8" LineSpacing="8" Margin="0,0,0,12">
             <Button Name="MarkFailedButton" Click="OnMarkFailedClick" />
             <Button Name="RefreshButton" Click="OnRefreshClick" />
-        </StackPanel>
+        </WrapPanel>
         <TextBlock Name="EmptyText" DockPanel.Dock="Top" Foreground="Gray" Margin="0,0,0,8" />
         <DataGrid Name="Grid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" SelectionMode="Single">
             <DataGrid.Columns>

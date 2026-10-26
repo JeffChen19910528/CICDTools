@@ -4,14 +4,14 @@
              x:Class="Deployment.Desktop.Views.AppsView"
              x:CompileBindings="False">
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+        <WrapPanel DockPanel.Dock="Top" ItemSpacing="8" LineSpacing="8" Margin="0,0,0,12">
             <TextBlock Name="Header" FontWeight="Bold" FontSize="18" VerticalAlignment="Center" Margin="0,0,16,0" />
             <Button Name="CreateAppButton" Click="OnCreateAppClick" />
             <Button Name="AddEnvButton" Click="OnAddEnvClick" />
             <Button Name="AddTargetButton" Click="OnAddTargetClick" />
             <Button Name="EditExcludesButton" Click="OnEditExcludesClick" />
             <Button Name="RefreshButton" Click="OnRefreshClick" />
-        </StackPanel>
+        </WrapPanel>
         <DataGrid Name="Grid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Application" Binding="{Binding AppName}" Width="200" />

@@ -23,13 +23,13 @@
             </TabItem>
             <TabItem Name="AuditTab">
                 <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                    <WrapPanel DockPanel.Dock="Top" ItemSpacing="8" LineSpacing="8" Margin="0,0,0,12">
                         <TextBlock Name="AuditAppLabel" VerticalAlignment="Center" />
                         <ComboBox Name="AuditAppCombo" Width="200" SelectionChanged="OnAuditFilterChanged" />
                         <TextBlock Name="AuditEnvLabel" VerticalAlignment="Center" />
                         <ComboBox Name="AuditEnvCombo" Width="160" SelectionChanged="OnAuditFilterChanged" />
                         <Button Name="AuditRefreshButton" Click="OnAuditRefreshClick" />
-                    </StackPanel>
+                    </WrapPanel>
                     <DataGrid Name="AuditGrid" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="150" />

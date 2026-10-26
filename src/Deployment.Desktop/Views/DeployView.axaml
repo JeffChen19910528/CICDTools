@@ -6,12 +6,12 @@
     <DockPanel>
         <TextBlock Name="Header" DockPanel.Dock="Top" FontWeight="Bold" FontSize="18" Margin="0,0,0,12" />
         <views:TargetSelector Name="Selector" DockPanel.Dock="Top" Margin="0,0,0,12" />
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+        <WrapPanel DockPanel.Dock="Top" ItemSpacing="8" LineSpacing="8" Margin="0,0,0,12">
             <Button Name="DiffButton" Click="OnDiffClick" />
             <Button Name="DryRunButton" Click="OnDryRunClick" />
             <Button Name="DeployButton" Click="OnDeployClick" Classes="accent" />
             <Button Name="RollbackButton" Click="OnRollbackClick" />
-        </StackPanel>
+        </WrapPanel>
         <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Padding="12">
             <ScrollViewer>
                 <TextBlock Name="ResultText" TextWrapping="Wrap" FontFamily="Consolas,monospace" />
