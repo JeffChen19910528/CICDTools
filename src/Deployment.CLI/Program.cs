@@ -11,6 +11,12 @@ using Microsoft.Extensions.Logging;
 if (OperatingSystem.IsWindows())
 {
     try { Console.OutputEncoding = System.Text.Encoding.UTF8; } catch { /* redirected output stream */ }
+    try
+    {
+        if (!Console.IsOutputRedirected && Console.WindowWidth < 120)
+            Console.WindowWidth = Math.Min(120, Console.LargestWindowWidth);
+    }
+    catch { /* terminal does not support resizing */ }
 }
 
 var (dataDir, backupStore, releasesStore) = DataPaths.Resolve();
