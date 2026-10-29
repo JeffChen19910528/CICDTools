@@ -52,6 +52,8 @@ The main menu covers each item in "What it does": Manage Applications, Release M
 
 ### Desktop GUI
 
+> **Full user guide:** [docs/GUI\_UserGuide.md](docs/GUI_UserGuide.md)
+
 If you would rather not use the terminal menu, use the desktop GUI `deployctl-gui` (`deployctl-gui.exe` on Windows). It offers the same features as the text menu (Manage Applications, Release Management, Deploy & Rollback, Backup Management, History & Audit, Recovery, Language Settings). The differences:
 
 - Everywhere you choose an application / environment / target / release, you use a drop-down with the mouse.
